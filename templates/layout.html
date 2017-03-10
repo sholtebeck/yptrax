@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block head %}{% endblock %}   
+    <strong><link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}"></strong>
+  </head>
+  <body>
+   
+    <header>
+      <div class="container">
+        <h1 class="logo">Yptrax</h1>
+    	<strong><nav>
+    	  <ul class="menu">
+            <li><a href="{{ log.url}}">{{ log.url_link }}</a></li>
+    	    <li><a href="{{ url_for('hello') }}">Hello</a></li>
+   	    <li><a href="{{ url_for('about') }}">About</a></li>
+    	  </ul>
+    	</nav></strong>
+      </div>
+    </header>
+
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+     
+  </body>
+</html>
