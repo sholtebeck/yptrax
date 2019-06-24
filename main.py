@@ -1,32 +1,41 @@
-from flask import Flask, render_template, request
-from google.appengine.api import users
+import firebase_admin
+from firebase_admin import firestore
+import flask
 
-app = Flask(__name__)
-app.config['DEBUG'] = True
+app = flask.Flask(__name__)
 
-# Note: We don't need to call run() since our application is embedded within
-# the App Engine WSGI application server.
+firebase_admin.initialize_app()
+TRACKS = firestore.client().collection('tracks')
 
-def log_inorout():
-    # check for login
-    log={'user':'dude', 'url':users.create_login_url(request.url), 'url_link': 'Login' }
-    if users.get_current_user():
-        log['user'] = users.get_current_user().nickname()
-        log['url'] = users.create_logout_url(request.url)
-        log['url_link'] = 'Logout'
-    return log   
+@app.route('/tracks', methods=['POST'])
+def create_track():
+    req = flask.request.json
+    track = TRACKS.document()
+    track.set(req)
+    return flask.jsonify({'id': track.id}), 201
 
+@app.route('/tracks/<id>')
+def read_track(id):
+    return flask.jsonify(_ensure_track(id).to_dict())
 
-@app.route('/')
-def hello():
-    """Return a friendly HTTP greeting."""
-    return render_template('hello.html', title='hello', log=log_inorout())
+@app.route('/tracks/<id>', methods=['PUT'])
+def update_track(id):
+    _ensure_track(id)
+    req = flask.request.json
+    TRACKS.document(id).set(req)
+    return flask.jsonify({'success': True})
 
-@app.route('/about')
-def about():
-    return render_template('about.html', title='about', log=log_inorout())
+@app.route('/tracks/<id>', methods=['DELETE'])
+def delete_track(id):
+    _ensure_track(id)
+    TRACKS.document(id).delete()
+    return flask.jsonify({'success': True})
 
-@app.errorhandler(404)
-def page_not_found(e):
-    """Return a custom 404 error."""
-    return 'Sorry, nothing at this URL.', 404
+def _ensure_track(id):
+    try:
+        return TRACKS.document(id).get()
+    except:
+        flask.abort(404)
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=8080, debug=True)
