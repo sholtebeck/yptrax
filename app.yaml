@@ -1,4 +1,6 @@
-application: yftrax
 runtime: python37
-service: tracks
-api_version: 1
+
+handlers:
+- url: .*
+  script: main.app
+
