@@ -16,7 +16,6 @@ def log_inorout():
         log['url_link'] = 'Logout'
     return log   
 
-
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
