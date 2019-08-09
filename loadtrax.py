@@ -1,8 +1,11 @@
 import fnmatch
 import os
+import csv
 import eyed3
+from hurry.filesize import size
 eyed3.log.setLevel("ERROR")
 
+root_folder = "C:\\Users\\Steve Holtebeck\\Music\\"
 artists = []
 albums = {}
 trax = []
@@ -15,13 +18,48 @@ def xstr(string):
     else:
         return str(''.join([i if ord(i) < 128 else '' for i in string]))
 
+def load_trax():
+    infile = csv.DictReader(open("trax.csv"),delimiter='\t')
+    trax=[dict(track) for track in infile]
+    return trax
+
+def find_track(path,trax):
+    found=[t for t in trax if t["file"].endswith(path)]
+    if len(found)==0:
+        return None
+    else:
+        return found[0]
+
+def aname(name):
+    if name.startswith("The "):
+        return name[4:]
+    else:
+        return name
+
+def rname(path,delim):
+    dirs=path.split(delim)
+    if len(dirs)>2: 
+        return '\\'.join(dirs[2:])   
+    else:
+        return None
+
 def get_file(filepath):
     dirs = filepath.split('\\')[-3:]
     return '/'.join(dirs)
+
+def get_files(folder,filter):
+    files=[]
+    for root, dirnames, filenames in os.walk(folder):
+        for filename in fnmatch.filter(filenames, filter):
+            files.append('\\'.join([root,filename]))
+    return files
     
 def get_tracklen(tsecs):
     if not tsecs:
         return 0
+    elif ':' in str(tsecs):
+        (m,s)=str(tsecs).split(':')
+        return int(m)*60+int(s)     
     else:
         return str(int(tsecs/60))+':'+ "%02d" % (int(tsecs) % 60)
 
@@ -34,9 +72,20 @@ def write_trax(trax):
         f.write(delim.join([str(track.get(key)) for key in keys])+'\n')
     f.close()
     return len(trax)
+
+def write_playlist(folder,trax):
+    fname=[f for f in folder.split('\\') if f][-1]+".m3u"
+    tsize=size(sum([t.get("size") for t in trax]))
+    tlen=get_tracklen(sum([get_tracklen(t.get("length")) for t in trax]))
+    f=open(folder+'\\'+fname,'w')
+    f.write("# "+fname+" ("+str(len(trax))+" tracks, "+tlen+", "+tsize+")\n")    
+    for track in trax:
+        f.write(track["file"].split('\\')[-1]+"\n")
+    f.close()       
+    return {"name": fname, "trax": len(trax), "length": tlen, "size": tsize }   
         
 def get_trackinfo(mfile):
-    track={ "file": xstr(mfile)[12:], "size": int(os.stat(mfile).st_size), "status":"ERR" }
+    track={ "file": xstr(mfile)[len(root_folder):], "size": int(os.stat(mfile).st_size), "status":"ERR" }
     try:
         afile=eyed3.load(mfile)
         if afile.tag:
@@ -58,10 +107,16 @@ def get_trackinfo(mfile):
     except:
         pass
     return track
+	
+def read_playlist(file):
+    songs=[]
+    for song in [rname(line.strip(),'/') for line in open(file).readlines()]:
+        songs.append(find_track(song))
+    return songs
 
 t=0
 unmatches = []
-for root, dirnames, filenames in os.walk('D:\\My Music'):
+for root, dirnames, filenames in os.walk(root_folder):
     for filename in fnmatch.filter(filenames, '*.mp3'):
         if len(unmatches)<1000 and len([n for n in filename if n in '<>?*'])==0:
             mfile=os.path.join(root, filename)
@@ -69,10 +124,9 @@ for root, dirnames, filenames in os.walk('D:\\My Music'):
             if track["status"]=="ERR":
                 unmatches.append(track)
             elif track["status"]=="OK" :
-                if t % 100 == 0:
-                    print (t, track['file'])                
                 trax.append(track)
                 t+=1
         else:
-            print filename, "not valid"
+            print (filename, "not valid")
+
 
