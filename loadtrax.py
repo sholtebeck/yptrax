@@ -3,9 +3,10 @@ import os
 import csv
 import eyed3
 from hurry.filesize import size
+from shutil import copyfile
 eyed3.log.setLevel("ERROR")
 
-root_folder = "C:\\Users\\Steve Holtebeck\\Music\\"
+root_folder = "C:\\Users\\Steve\\Music\\Compilations"
 artists = []
 albums = {}
 trax = []
@@ -73,13 +74,24 @@ def write_trax(trax):
     f.close()
     return len(trax)
 
+
+def copy_file(song,old_folder,new_folder):
+    old_name = old_folder + '\\' + song["file"]
+    new_name = new_folder + '\\' + song["new_file"]
+    copyfile(old_name,new_name)
+
+
 def write_playlist(folder,trax):
+    old_folder="G:\\My Music"
+    if not os.path.exists(folder):
+        os.mkdir(folder)
     fname=[f for f in folder.split('\\') if f][-1]+".m3u"
-    tsize=size(sum([t.get("size") for t in trax]))
+    tsize=size(sum([int(t.get("size",0)) for t in trax]))
     tlen=get_tracklen(sum([get_tracklen(t.get("length")) for t in trax]))
     f=open(folder+'\\'+fname,'w')
     f.write("# "+fname+" ("+str(len(trax))+" tracks, "+tlen+", "+tsize+")\n")    
     for track in trax:
+        copy_file(track,old_folder,folder)
         f.write(track["file"].split('\\')[-1]+"\n")
     f.close()       
     return {"name": fname, "trax": len(trax), "length": tlen, "size": tsize }   
@@ -107,26 +119,39 @@ def get_trackinfo(mfile):
     except:
         pass
     return track
-	
-def read_playlist(file):
+    
+def read_playlist(file,trax):
     songs=[]
     for song in [rname(line.strip(),'/') for line in open(file).readlines()]:
-        songs.append(find_track(song))
+        track=find_track(song,trax)
+        if track and track.get("title"):
+            track["file"]=song
+            track["track_no"]=len(songs)+1
+            track["new_file"]='%02d_' % track["track_no"] + track["artist"] + "-" + track["title"] + ".mp3"
+            track["new_file"]=track["new_file"].replace('?','').replace('/','+').replace('>','')
+            songs.append(track)
     return songs
 
-t=0
-unmatches = []
-for root, dirnames, filenames in os.walk(root_folder):
-    for filename in fnmatch.filter(filenames, '*.mp3'):
-        if len(unmatches)<1000 and len([n for n in filename if n in '<>?*'])==0:
-            mfile=os.path.join(root, filename)
-            track=get_trackinfo(mfile)
-            if track["status"]=="ERR":
-                unmatches.append(track)
-            elif track["status"]=="OK" :
-                trax.append(track)
-                t+=1
-        else:
-            print (filename, "not valid")
+def load_all_files():
+    for mfile in get_files(root_folder,'*.mp3'):
+        track=get_trackinfo(mfile)
+        if track["status"]=="OK" :
+            trax.append(track)
+    return trax
 
+def copy_playlist(plist):
+    songs=read_playlist(plist,trax)
+    artists=set([s["artist"] for s in songs])
+    if len(artists)>2:
+        pname=plist[4:-4]
+    else:
+        pname=aname(artists.pop())
+    if len(songs)>9:
+        new_folder=root_folder+'\\'+pname
+        p=write_playlist(new_folder,songs)
+    return p
+
+	
+trax = load_trax()
+plists= get_files("m3u","*m3u")
 
