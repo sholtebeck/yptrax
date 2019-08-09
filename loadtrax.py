@@ -127,8 +127,8 @@ def read_playlist(file,trax):
         if track and track.get("title"):
             track["file"]=song
             track["track_no"]=len(songs)+1
-            track["new_file"]='%02d_' % track["track_no"] + track["artist"] + "-" + track["title"] + ".mp3"
-            track["new_file"]=track["new_file"].replace('?','').replace('/','+').replace('>','')
+            track["new_file"]='%02d_' % track["track_no"] + aname(track["artist"]) + "-" + track["title"] + ".mp3"
+            track["new_file"]=track["new_file"].replace('?','').replace('/','+').replace('>','').replace('<','')
             songs.append(track)
     return songs
 
@@ -139,17 +139,19 @@ def load_all_files():
             trax.append(track)
     return trax
 
-def copy_playlist(plist):
-    songs=read_playlist(plist,trax)
+def copy_playlist(playlist):
+    songs=read_playlist(playlist,trax)
     artists=set([s["artist"] for s in songs])
     if len(artists)>2:
-        pname=plist[4:-4]
+        pname=playlist[4:-4]
     else:
         pname=aname(artists.pop())
+        for song in songs:
+            song["new_file"] = song["new_file"].replace(pname+'-','')		
     if len(songs)>9:
         new_folder=root_folder+'\\'+pname
-        p=write_playlist(new_folder,songs)
-    return p
+        playlist=write_playlist(new_folder,songs)
+    return playlist
 
 	
 trax = load_trax()
