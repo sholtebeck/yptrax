@@ -70,7 +70,7 @@ def get_tracks(filter=''):
         return [get_track(t) for t in albums[filter]["trx"]]
     elif filter:
         return [t for t in trax if t["title"].startswith(filter)]
-    else:
-        return trax[:100]
-    return None
+    elif not trax:
+        trax=load_trax()
+    return trax
     

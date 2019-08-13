@@ -1,0 +1,136 @@
+/* app css stylesheet */
+ul.tabs {
+		margin: 0;
+		padding: 0;
+		float: left;
+		list-style: none;
+		height: 30px;
+		border-bottom: 1px solid #999999;
+		border-left: 1px solid #999999;
+		width: 100%;
+}
+ul.tabs li {
+		float: left;
+		margin: 0;
+		cursor: pointer;
+		padding: 0px 21px ;
+		height: 30px;
+		line-height: 31px;
+		border: 1px solid #999999;
+		border-left: none;
+		font-weight: bold;
+        font-size: 1.2em;
+		background: #EEEEEE;
+		overflow: hidden;
+		position: relative;
+}
+ul.tabs li:hover {
+	background: #CCCCCC;
+}	
+ul.tabs li.active{
+	background: #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+}
+.tab_container {
+	border: 1px solid #999999;
+	border-top: none;
+	clear: both;
+	float: left; 
+	width: 100%;
+	background: #FFFFFF;
+}
+.tab_content {
+	padding: 15px;
+	font-size: 1.2em;
+	display: none;
+}
+	body {
+	  font-family: Verdana, Arial, sans-serif;	
+      font-size: 1.1em;
+	  background-color: #DDDDDD;
+	}
+	select {
+	  font-family: Verdana, Arial, sans-serif;
+	  font-size: 1.1em;
+        }
+	#container {
+		width: 1000px;
+		margin: 0 auto;	
+	}
+body {
+  font-family: sans-serif;
+  font-size: 18px;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.container {
+  width: 800px;
+  margin: 0 auto;
+}
+
+div.jumbo {
+  padding: 10px 0 30px 0;
+  background-color: #eeeeee;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+.menu {
+  list-style: none;
+  border-bottom: 0.1em solid black;
+  margin-bottom: 2em;
+  padding: 0 0 0.5em;
+}
+
+.menu:before {
+  content: "[";
+}
+
+.menu:after {
+  content: "]";
+}
+
+.menu > li {
+  display: inline;
+}
+
+.menu > li:before {
+  content: "|";
+  padding-right: 0.3em;
+}
+
+.menu > li:nth-child(1):before {
+  content: "";
+  padding: 0;
+}
+
+.paddinglr5 {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+table { 
+color: #333; /* Lighten up font color */
+font-family: Helvetica, Arial, sans-serif; /* Nicer font */
+border-collapse: 
+collapse; border-spacing: 0; 
+}
+
+td, th { border: solid; } /* Make cells a bit taller */
+
+th {
+background: #F3F3F3; /* Light grey background */
+font-weight: bold; /* Make sure they're bold */
+font-size: 18px;
+}
+
+td {
+background: #FAFAFA; /* Lighter grey background */
+font-size: 18px;
+}
+
+select {
+  font-family: inherit;
+}
+
+

@@ -2,7 +2,7 @@ import sys
 sys.path[0:0] = ['lib']
 from flask import Flask, jsonify, render_template, request
 from google.appengine.api import users
-import trax
+from trax import *
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -32,19 +32,23 @@ def about():
 @app.route('/albums/<artist>', methods=['GET'])
 def albums(artist=None):
     """Get all albums."""
-    return jsonify({ 'albums': trax.get_albums(artist) })
+    return jsonify({ 'albums': get_albums(artist) })
 
 @app.route('/artists', methods=['GET'])
 @app.route('/artists/<filter>', methods=['GET'])
 def artists(filter=''):
     """Get all artists."""
-    return jsonify({ 'artists': trax.get_artists(filter) })
+    return jsonify({ 'artists': get_artists(filter) })
 
 @app.route('/tracks', methods=['GET'])
 @app.route('/tracks/<filter>', methods=['GET'])
 def tracks(filter=''):
     """Get all artists."""
-    return jsonify({ 'filter': filter, 'tracks': trax.get_tracks(filter) })
+    return jsonify({ 'filter': filter, 'tracks': get_tracks(filter) })
+
+@app.route('/api/trax', methods=['GET'])
+def trax():
+    return jsonify(get_tracks())
 
 
 @app.errorhandler(404)
