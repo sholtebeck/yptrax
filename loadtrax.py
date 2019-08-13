@@ -6,7 +6,7 @@ from hurry.filesize import size
 from shutil import copyfile
 eyed3.log.setLevel("ERROR")
 
-root_folder = "C:\\Users\\Steve\\Music\\Compilations"
+root_folder = "C:\\Users\\Steve Holtebeck\\Music"
 artists = []
 albums = {}
 trax = []
@@ -82,7 +82,7 @@ def copy_file(song,old_folder,new_folder):
 
 
 def write_playlist(folder,trax):
-    old_folder="G:\\My Music"
+    old_folder="F:\\My Music"
     if not os.path.exists(folder):
         os.mkdir(folder)
     fname=[f for f in folder.split('\\') if f][-1]+".m3u"
@@ -91,13 +91,13 @@ def write_playlist(folder,trax):
     f=open(folder+'\\'+fname,'w')
     f.write("# "+fname+" ("+str(len(trax))+" tracks, "+tlen+", "+tsize+")\n")    
     for track in trax:
-        copy_file(track,old_folder,folder)
-        f.write(track["file"].split('\\')[-1]+"\n")
+#       copy_file(track,old_folder,folder)
+        f.write(track["file"]+"\n")
     f.close()       
     return {"name": fname, "trax": len(trax), "length": tlen, "size": tsize }   
         
 def get_trackinfo(mfile):
-    track={ "file": xstr(mfile)[len(root_folder):], "size": int(os.stat(mfile).st_size), "status":"ERR" }
+    track={ "file": xstr(mfile), "size": int(os.stat(mfile).st_size), "status":"ERR" }
     try:
         afile=eyed3.load(mfile)
         if afile.tag:
@@ -127,17 +127,18 @@ def read_playlist(file,trax):
         if track and track.get("title"):
             track["file"]=song
             track["track_no"]=len(songs)+1
-            track["new_file"]='%02d_' % track["track_no"] + aname(track["artist"]) + "-" + track["title"] + ".mp3"
+            track["new_file"]='%02d_' % track["track_no"] + aname(track["artist"]) + "-" + track["title"] + song[-4:]
             track["new_file"]=track["new_file"].replace('?','').replace('/','+').replace('>','').replace('<','')
             songs.append(track)
     return songs
 
 def load_all_files():
+    mytrax=[]
     for mfile in get_files(root_folder,'*.mp3'):
         track=get_trackinfo(mfile)
         if track["status"]=="OK" :
-            trax.append(track)
-    return trax
+            mytrax.append(track)
+    return mytrax
 
 def copy_playlist(playlist):
     songs=read_playlist(playlist,trax)
@@ -148,11 +149,16 @@ def copy_playlist(playlist):
         pname=aname(artists.pop())
         for song in songs:
             song["new_file"] = song["new_file"].replace(pname+'-','')		
-    if len(songs)>9:
+    if len(songs) in range(9,100):
         new_folder=root_folder+'\\'+pname
         playlist=write_playlist(new_folder,songs)
     return playlist
 
+def fix_playlists():
+    for playlist in get_files(root_folder,"*m3u"):
+        folder='\\'.join(playlist.split('\\')[:-1])
+        tracks=[get_trackinfo(file) for file in get_files(folder,"*mp3")]
+        print(write_playlist(folder,tracks))
 	
 trax = load_trax()
 plists= get_files("m3u","*m3u")

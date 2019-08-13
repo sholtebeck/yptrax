@@ -1,5 +1,8 @@
-from flask import Flask, render_template, request
+import sys
+sys.path[0:0] = ['lib']
+from flask import Flask, jsonify, render_template, request
 from google.appengine.api import users
+import trax
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -24,6 +27,25 @@ def hello():
 @app.route('/about')
 def about():
     return render_template('about.html', title='about', log=log_inorout())
+
+@app.route('/albums', methods=['GET'])
+@app.route('/albums/<artist>', methods=['GET'])
+def albums(artist=None):
+    """Get all albums."""
+    return jsonify({ 'albums': trax.get_albums(artist) })
+
+@app.route('/artists', methods=['GET'])
+@app.route('/artists/<filter>', methods=['GET'])
+def artists(filter=''):
+    """Get all artists."""
+    return jsonify({ 'artists': trax.get_artists(filter) })
+
+@app.route('/tracks', methods=['GET'])
+@app.route('/tracks/<filter>', methods=['GET'])
+def tracks(filter=''):
+    """Get all artists."""
+    return jsonify({ 'filter': filter, 'tracks': trax.get_tracks(filter) })
+
 
 @app.errorhandler(404)
 def page_not_found(e):
