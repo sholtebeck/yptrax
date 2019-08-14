@@ -72,5 +72,5 @@ def get_tracks(filter=''):
         return [t for t in trax if t["title"].startswith(filter)]
     elif not trax:
         trax=load_trax()
-    return trax
+    return trax[:999]
     
