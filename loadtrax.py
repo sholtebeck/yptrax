@@ -104,6 +104,10 @@ def get_trackinfo(mfile):
             artist=track["artist"]=xstr(afile.tag.artist)
             track["title"]=xstr(afile.tag.title)
             album=track["album"]=xstr(afile.tag.album)
+            if afile.tag.album_artist:
+                track["album_artist"]=xstr(afile.tag.album_artist)
+            else:
+                track["album_artist"]=track["artist"]
             if afile.tag.track_num[0]:
                 track["track_no"]=int(afile.tag.track_num[0])
             track["length"]=get_tracklen(afile.info.time_secs) 

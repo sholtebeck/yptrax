@@ -1,6 +1,6 @@
 import sys
 sys.path[0:0] = ['lib']
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, redirect, request
 from google.appengine.api import users
 from trax import *
 
@@ -46,9 +46,9 @@ def tracks(filter=''):
     """Get all artists."""
     return jsonify({ 'filter': filter, 'tracks': get_tracks(filter) })
 
-@app.route('/api/trax', methods=['GET'])
+@app.route('/trax', methods=['GET'])
 def trax():
-    return jsonify(get_tracks())
+    return redirect("/static/trax.html", code=302)
 
 
 @app.errorhandler(404)
