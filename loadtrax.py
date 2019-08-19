@@ -1,6 +1,6 @@
 import fnmatch
 import os
-import csv
+import json
 import eyed3
 from hurry.filesize import size
 from shutil import copyfile
@@ -19,17 +19,17 @@ def xstr(string):
     else:
         return str(''.join([i if ord(i) < 128 else '' for i in string]))
 
-def load_trax():
-    infile = csv.DictReader(open("trax.csv"),delimiter='\t')
-    trax=[dict(track) for track in infile]
-    return trax
-
 def find_track(path,trax):
     found=[t for t in trax if t["file"].endswith(path)]
     if len(found)==0:
         return None
     else:
         return found[0]
+
+def load_trax():
+    with open('static/trax.json') as trax_json:
+        trax = json.load(trax_json)
+    return trax
 
 def aname(name):
     if name.startswith("The "):
